@@ -12,10 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@solana/web3.js": "^1.77.3"
+    "@solana/web3.js": "^1.87.6"
   },
   "devDependencies": {
-    "@types/react": "^18.2.12",
+    "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.5",
     "@vitejs/plugin-react": "^4.0.0",
     "react": "^18.2.0",

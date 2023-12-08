@@ -76,6 +76,10 @@ export default function App() {
     undefined
   );
 
+  const [senderPublicKey, setSenderPublicKey] = useState <PublicKey | undefined>(
+    undefined
+  );
+
   // create a state variable for our connection
   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
   
@@ -97,15 +101,34 @@ export default function App() {
    */
   const createSender = async () => {
     // create a new Keypair
+    const newPair = Keypair.generate();
+    console.log(newPair.publicKey)
 
-
+    setSenderKeypair(newPair);
     console.log('Sender account: ', senderKeypair!.publicKey.toString());
     console.log('Airdropping 2 SOL to Sender Wallet');
 
     // save this new KeyPair into this state variable
-    setSenderKeypair(/*KeyPair here*/);
+   
+    const newPubKey = senderKeypair!.publicKey.toString()
+    setSenderPublicKey(new PublicKey(newPubKey))
+    console.log(newPubKey)
 
     // request airdrop into this new account
+    const airDropSol =async () => {
+      try {
+        const requestAirdrop = await connection.requestAirdrop(
+          new PublicKey(newPubKey),
+          2 * LAMPORTS_PER_SOL,
+        );
+        console.log('Airdroped 2 SOl into', senderKeypair?.publicKey.toString())
+        
+      } catch (error) {
+        console.log(error) 
+      }  
+    }
+
+    airDropSol()
     
 
     const latestBlockHash = await connection.getLatestBlockhash();
@@ -127,11 +150,15 @@ export default function App() {
     if (solana) {
       try {
         // connect to phantom wallet and return response which includes the wallet public key
+        const response = await solana.connect()
+        console.log(`Wallet account:`, response.publicKey.toString())
 
         // save the public key of the phantom wallet to the state variable
-        setReceiverPublicKey(/*PUBLIC KEY*/);
+
+        setReceiverPublicKey(response.publicKey.toString());
       } catch (err) {
         console.log(err);
+        alert(err)
       }
     }
   };
@@ -163,6 +190,16 @@ export default function App() {
   const transferSol = async () => {    
     
     // create a new transaction for the transfer
+
+    if(senderPublicKey && receiverPublicKey) {
+    let transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: senderPublicKey,
+        toPubkey: receiverPublicKey, 
+        lamports: 1 * LAMPORTS_PER_SOL
+      })
+    )
+    }
 
     // send and confirm the transaction
 
